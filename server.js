@@ -4,7 +4,7 @@ var app = express()
 var http = require('http').Server(app)
 var io = require('socket.io')(http)
 var mongoose = require('mongoose')
-var TOKEN = ''
+var TOKEN = 'T3nn1s12'
 
 app.use(express.static(__dirname))
 app.use(bodyParser.json())
@@ -25,30 +25,23 @@ app.get('/messages', (req, res) => {
   })
 })
 
-app.post('/messages', (req, res) => {
+app.post('/messages', async (req, res) => {
   var message = new Message(req.body)
 
-  message.save()
-  .then(() => {
+  var savedMessage = await message.save()
+ 
     console.log('saved')
-    return Message.findOne({message: 'badword'})
-  })
-  .then( censored => {
-    if(censored) {
-      console.log('censored words found', censored)
-      return Message.remove({_id: censored.id}, (err) => {
-        console.log('removed censored message')
-      })
-    }
 
-    io.emit('mesage', req.body)
+  var censored = await Message.findOne({message: 'badword'})
+  
+  if(censored) 
+    await Message.remove({_id: censored.id})
+  else 
+    io.emit('mesage', req.body)    
     res.sendStatus(200)
-  })
-    .catch((err) => {
-    res.sendStatus(500)
-    return console.error(err)
-  })
 })
+   
+ 
 
 io.on('connection', (socket) => {
   console.log('a user connected')
