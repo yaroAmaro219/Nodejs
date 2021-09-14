@@ -4,7 +4,7 @@ var app = express()
 var http = require('http').Server(app)
 var io = require('socket.io')(http)
 var mongoose = require('mongoose')
-var TOKEN = 'T3nn1s12'
+var TOKEN = ''
 
 app.use(express.static(__dirname))
 app.use(bodyParser.json())
